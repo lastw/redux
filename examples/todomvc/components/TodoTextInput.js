@@ -1,58 +1,45 @@
-import React, { Component, PropTypes } from 'react'
 import classnames from 'classnames'
 
-class TodoTextInput extends Component {
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      text: this.props.text || ''
-    }
-  }
+export default function TodoTextInput(slot) {
+  return function(props, state = { text: props.text || '' }) {
+    function handleSubmit(e) {
+      const text = e.target.value.trim()
+      if (e.which === 13) {
+        if (props.newTodo) {
+          slot.setState({ text: '' })
+        }
 
-  handleSubmit(e) {
-    const text = e.target.value.trim()
-    if (e.which === 13) {
-      this.props.onSave(text)
-      if (this.props.newTodo) {
-        this.setState({ text: '' })
+        props.onSave(text)
       }
     }
-  }
 
-  handleChange(e) {
-    this.setState({ text: e.target.value })
-  }
-
-  handleBlur(e) {
-    if (!this.props.newTodo) {
-      this.props.onSave(e.target.value)
+    function handleChange(e) {
+      slot.setState({ text: e.target.value })
     }
-  }
 
-  render() {
-    return (
-      <input className={
-        classnames({
-          edit: this.props.editing,
-          'new-todo': this.props.newTodo
+    function handleBlur(e) {
+      if (!props.newTodo) {
+        props.onSave(e.target.value)
+      }
+    }
+
+    const onBlur = slot.handler(handleBlur)
+    const onChange = slot.handler(handleChange)
+    const onKeydown = slot.handler(handleSubmit)
+
+    return `
+      <input class="${classnames({
+          edit: props.editing,
+          'new-todo': props.newTodo
         })}
         type="text"
-        placeholder={this.props.placeholder}
+        placeholder="${props.placeholder}"
         autoFocus="true"
-        value={this.state.text}
-        onBlur={this.handleBlur.bind(this)}
-        onChange={this.handleChange.bind(this)}
-        onKeyDown={this.handleSubmit.bind(this)} />
-    )
+        value="${state.text}"
+        data-onblur="${onBlur}"
+        data-oninput="${onChange}"
+        data-onkeydown="${onKeydown}"
+        data-ref="${slot.ref()}" />
+    `
   }
 }
-
-TodoTextInput.propTypes = {
-  onSave: PropTypes.func.isRequired,
-  text: PropTypes.string,
-  placeholder: PropTypes.string,
-  editing: PropTypes.bool,
-  newTodo: PropTypes.bool
-}
-
-export default TodoTextInput

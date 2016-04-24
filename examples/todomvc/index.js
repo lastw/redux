@@ -1,16 +1,17 @@
-import 'babel-polyfill'
-import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
 import App from './containers/App'
 import configureStore from './store/configureStore'
 import 'todomvc-app-css/index.css'
 
+import Root from 'slot-ui'
+
 const store = configureStore()
 
-render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+const root = new Root(App, { store })
+
+root.mount(
   document.getElementById('root')
 )
+
+store.subscribe(() => root.slot.rerender({ store }))
+
+window._root = root

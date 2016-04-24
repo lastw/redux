@@ -1,27 +1,26 @@
-import React, { PropTypes, Component } from 'react'
 import TodoTextInput from './TodoTextInput'
 
-class Header extends Component {
-  handleSave(text) {
-    if (text.length !== 0) {
-      this.props.addTodo(text)
+export default function Header(slot) {
+
+  return function(props) {
+
+    function handleSave(text) {
+      if (text.length !== 0) {
+        props.addTodo(text)
+      }
     }
-  }
 
-  render() {
-    return (
-      <header className="header">
+    const todoTextInput = slot.init(TodoTextInput, {
+      newTodo: true,
+      onSave: handleSave,
+      placeholder: 'What needs to be done?'
+    })
+
+    return `
+      <header class="header">
           <h1>todos</h1>
-          <TodoTextInput newTodo
-                         onSave={this.handleSave.bind(this)}
-                         placeholder="What needs to be done?" />
+          ${todoTextInput}
       </header>
-    )
+    `
   }
 }
-
-Header.propTypes = {
-  addTodo: PropTypes.func.isRequired
-}
-
-export default Header
